@@ -7,66 +7,66 @@ const heading = $('header h2')
 const cdThumb = $('.cd-thumb')
 const audio = $('#audio')
 const playBtn = $('.btn-toggle-play')
+const progress = $('#progress')
+const preBtn = $('.btn-prev')
+const nextBtn = $('.btn-next')
+const randomBtn = $('.btn-random')
+const repeatBtn = $('.btn-repeat')
 
 const app = {
   currentIndex: 0,
   isPlaying: false,
+  isRandom: false,
+  isRepeat: false,
     songs: [
         {
-          name: "Click Pow Get Down",
-          singer: "Raftaar x Fortnite",
-          path: "https://mp3.vlcmusic.com/download.php?track_id=34737&format=320",
-          image: "https://i.ytimg.com/vi/jTLhQf5KJSc/maxresdefault.jpg"
+          name: "Nhạc Xuân Remix",
+          singer: "Cukcak Remix",
+          path: "./asset/music/song1.mp3",
+          image: "https://avatar-ex-swe.nixcdn.com/playlist/2023/12/25/d/f/6/7/1703495481402_500.jpg"
         },
         {
-          name: "Tu Phir Se Aana",
-          singer: "Raftaar x Salim Merchant x Karma",
-          path: "https://mp3.vlcmusic.com/download.php?track_id=34213&format=320",
-          image:
-            "https://1.bp.blogspot.com/-kX21dGUuTdM/X85ij1SBeEI/AAAAAAAAKK4/feboCtDKkls19cZw3glZWRdJ6J8alCm-gCNcBGAsYHQ/s16000/Tu%2BAana%2BPhir%2BSe%2BRap%2BSong%2BLyrics%2BBy%2BRaftaar.jpg"
+          name: "Con bướm xuân",
+          singer: "Cukcak Remix",
+          path: "./asset/music/song2.mp3",
+          image: "https://avatar-ex-swe.nixcdn.com/playlist/2023/12/25/d/f/6/7/1703495481402_500.jpg"
         },
         {
-          name: "Naachne Ka Shaunq",
-          singer: "Raftaar x Brobha V",
-          path:
-            "https://mp3.filmysongs.in/download.php?id=Naachne Ka Shaunq Raftaar Ft Brodha V Mp3 Hindi Song Filmysongs.co.mp3",
-          image: "https://i.ytimg.com/vi/QvswgfLDuPg/maxresdefault.jpg"
+          name: "Em xinh",
+          singer: "MONO",
+          path: "./asset/music/song3.mp3",
+          image: "https://avatar-ex-swe.nixcdn.com/song/2022/08/10/4/8/b/1/1660104031203.jpg"
         },
         {
-          name: "Mantoiyat",
-          singer: "Raftaar x Nawazuddin Siddiqui",
-          path: "https://mp3.vlcmusic.com/download.php?track_id=14448&format=320",
-          image:
-            "https://a10.gaanacdn.com/images/song/39/24225939/crop_480x480_1536749130.jpg"
+          name: "Nụ cười xuân",
+          singer: "Đại Mèo",
+          path: "./asset/music/song4.mp3",
+          image: "https://avatar-ex-swe.nixcdn.com/song/2022/12/29/e/e/f/b/1672307059193_500.jpg"
         },
         {
-          name: "Aage Chal",
-          singer: "Raftaar",
-          path: "https://mp3.vlcmusic.com/download.php?track_id=25791&format=320",
-          image:
-            "https://a10.gaanacdn.com/images/albums/72/3019572/crop_480x480_3019572.jpg"
+          name: "Waiting For You",
+          singer: "MONO",
+          path: "./asset/music/song5.mp3",
+          image: "https://avatar-ex-swe.nixcdn.com/song/2022/06/08/0/0/9/1/1654684969581.jpg"
         },
         {
-          name: "Damn",
-          singer: "Raftaar x kr$na",
-          path:
-            "https://mp3.filmisongs.com/go.php?id=Damn%20Song%20Raftaar%20Ft%20KrSNa.mp3",
-          image:
-            "https://filmisongs.xyz/wp-content/uploads/2020/07/Damn-Song-Raftaar-KrNa.jpg"
+          name: "Như anh đã thấy em",
+          singer: "PhucXD, Freak D",
+          path: "./asset/music/song6.mp3",
+          image: "https://photo-resize-zmp3.zmdcdn.me/w240_r1x1_jpeg/cover/b/f/0/1/bf0182328238f2a252496a63e51f1f74.jpg"
         },
         {
-          name: "Feeling You",
-          singer: "Raftaar x Harjas",
-          path: "https://mp3.vlcmusic.com/download.php?track_id=27145&format=320",
-          image:
-            "https://a10.gaanacdn.com/gn_img/albums/YoEWlabzXB/oEWlj5gYKz/size_xxl_1586752323.webp"
-        }
+          name: "See Tình",
+          singer: "Hoàng Thùy Linh",
+          path: "./asset/music/song7.mp3",
+          image: "https://avatar-ex-swe.nixcdn.com/song/2022/02/20/f/c/1/9/1645341331047.jpg"
+        },
     ],
     render: function() {
-      const htmls = this.songs.map(song => {
+      const htmls = this.songs.map((song, index) => {
         return `
-          <div class="song">
-            <div class="thumb" style="background-image: url(${song.image}')">
+          <div class="song ${index === this.currentIndex ? 'active' : ''}">
+            <div class="thumb" style="background-image: url(${song.image})">
             </div>
             <div class="body">
               <h3 class="title">${song.name}</h3>
@@ -90,6 +90,17 @@ const app = {
     handleEvents: function() {
       const _this = this
       const cdWidth = cd.offsetWidth
+
+      //Xử lý CD quay /dừng
+      const cdThumbAnimate = cdThumb.animate([
+        {transform: 'rotate(360deg)'}
+      ], {
+          duration: 10000, // 10 seconds
+          iterations: Infinity
+      })
+      cdThumbAnimate.pause()
+
+
       //xử lý phóng to / thu nhỏ cd
       document.onscroll = function() {
         const scrollTop = window.scrollY || document.documentElement.scrollTop
@@ -102,22 +113,119 @@ const app = {
       //xử lý khi click play
       playBtn.onclick = function() {
         if (_this.isPlaying) {
-          _this.isPlaying = false
           audio.pause()
-          player.classList.remove('playing')
         }
         else {
-          _this.isPlaying = true
           audio.play()
-          player.classList.add('playing')
         }
       }
+      //khi song được play
+      audio.onplay = function() {
+        _this.isPlaying = true
+        player.classList.add('playing')
+        cdThumbAnimate.play()
+      }
+      //khi song bị pause
+      audio.onpause = function() {
+        _this.isPlaying = false
+        player.classList.remove('playing')
+        cdThumbAnimate.pause()
+      }
+
+      //Khi tiến độ bài hát thay đổi 
+      audio.ontimeupdate = function() {
+        if (audio.duration) {
+          const progressPercent = Math.floor(audio.currentTime / audio.duration * 100)
+          progress.value = progressPercent
+        }
+      }
+
+      // Xử lý khi tua song
+      progress.onchange = function(e) {
+        const seekTime = audio.duration / 100 * e.target.value
+        audio.currentTime = seekTime
+      }
+
+      //khi next song
+      nextBtn.onclick = function() {
+        if (_this.isRandom) {
+          _this.playRandomSong()
+        }
+        else {
+          _this.nextSong()
+        }
+        audio.play()
+        _this.render()
+        _this.scrollToActiveSong()
+      }
+      //khi prev song
+      preBtn.onclick = function() {
+        if (_this.isRandom) {
+          _this.playRandomSong()
+        }
+        else {
+          _this.prevSong()
+        }
+        audio.play()
+        _this.render()
+      }
+      // random song
+      randomBtn.onclick = function(e) {
+        _this.isRandom = !_this.isRandom
+        randomBtn.classList.toggle('active', _this.isRandom)
+        _this.playRandomSong()
+      }
+      //xử lý lặp lại song
+      repeatBtn.onclick = function(e) {
+        _this.isRepeat = !_this.isRepeat
+        repeatBtn.classList.toggle('active',_this.isRepeat)
+      }
+      // xử lý next song khi end song
+      audio.onended = function() {
+        if (_this.isRepeat) {
+          audio.play()
+        }
+        else {
+          nextBtn.click()
+        } 
+      }
+    },
+    scrollToActiveSong: function() {
+      setTimeout(() => {
+        $('.song.active').scrollIntoView({
+          behavior: 'smooth',
+          block:'nearest',
+        })
+      },300)
     },
     loadCurrentSong: function() {
       heading.textContent = this.currentSong.name
-      cdThumb.style.backgroundImage = `url('${this.currentSong.image})`
+      cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`
       audio.src = this.currentSong.path
     },
+    nextSong : function() {
+      this.currentIndex++
+      if (this.currentIndex >= this.songs.length) {
+        this.currentIndex = 0
+      }
+      this.loadCurrentSong()
+    },
+    prevSong : function() {
+      this.currentIndex--
+      if (this.currentIndex < 0) {
+        this.currentIndex = this.songs.length - 1
+      }
+      this.loadCurrentSong()
+    },
+    playRandomSong: function() {
+      let newIndex
+      do {
+        newIndex = Math.floor(Math.random() * this.songs.length)
+      } while (newIndex === this.currentIndex)
+      this.currentIndex = newIndex
+      this.loadCurrentSong()      
+    },
+
     start: function() {
       //Định nghĩa các thuộc tính cho Objec 
       this.defineProperties()
