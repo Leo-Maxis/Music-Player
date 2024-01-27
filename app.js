@@ -1,6 +1,8 @@
 const $ = document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
 
+const PLAYER_STORAGE_KEY = 'LEO_MUSIC'
+
 const player = $('.player')
 const cd = $('.cd')
 const heading = $('header h2')
@@ -12,12 +14,14 @@ const preBtn = $('.btn-prev')
 const nextBtn = $('.btn-next')
 const randomBtn = $('.btn-random')
 const repeatBtn = $('.btn-repeat')
+const playlist = $('.playlist')
 
 const app = {
   currentIndex: 0,
   isPlaying: false,
   isRandom: false,
   isRepeat: false,
+  config: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
     songs: [
         {
           name: "Nhạc Xuân Remix",
@@ -62,10 +66,14 @@ const app = {
           image: "https://avatar-ex-swe.nixcdn.com/song/2022/02/20/f/c/1/9/1645341331047.jpg"
         },
     ],
+    setConfig : function(key, value) {
+      this.config[key] = value;
+      localStorage.setItem(PLAYER_STORAGE_KEY, JSON.stringify(this.config))
+    },
     render: function() {
       const htmls = this.songs.map((song, index) => {
         return `
-          <div class="song ${index === this.currentIndex ? 'active' : ''}">
+          <div class="song ${index === this.currentIndex ? 'active' : ''}" data-index ="${index}">
             <div class="thumb" style="background-image: url(${song.image})">
             </div>
             <div class="body">
@@ -78,7 +86,7 @@ const app = {
           </div>
       `
       })
-      $('.playlist').innerHTML = htmls.join('')
+      playlist.innerHTML = htmls.join('')
     },
     defineProperties: function() {
       Object.defineProperty(this,'currentSong', {
@@ -173,11 +181,13 @@ const app = {
       randomBtn.onclick = function(e) {
         _this.isRandom = !_this.isRandom
         randomBtn.classList.toggle('active', _this.isRandom)
+        _this.setConfig('isRandom', _this.isRandom)
         _this.playRandomSong()
       }
       //xử lý lặp lại song
       repeatBtn.onclick = function(e) {
         _this.isRepeat = !_this.isRepeat
+        _this.setConfig('isRepeat', _this.isRepeat)
         repeatBtn.classList.toggle('active',_this.isRepeat)
       }
       // xử lý next song khi end song
@@ -188,6 +198,25 @@ const app = {
         else {
           nextBtn.click()
         } 
+      }
+
+      //Lắng nghe hành vi click vào playlist
+      playlist.onclick = function(e) {
+        const songNode = e.target.closest('.song:not(.active')
+        //Xử lý khi click khi vào song
+        if (songNode || e.target.closest('.option')) {
+          //Xử lý khi click vào song
+          if (songNode) {
+            _this.currentIndex = Number(songNode.dataset.index)
+            _this.loadCurrentSong()
+            _this.render()
+            audio.play()
+          }
+          //Xử lý khi click vào option
+          if(e.target.closest('.option')) {
+
+          }
+        }
       }
     },
     scrollToActiveSong: function() {
@@ -202,6 +231,10 @@ const app = {
       heading.textContent = this.currentSong.name
       cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`
       audio.src = this.currentSong.path
+    },
+    loadConfig: function() {
+      this.isRandom = this.config.isRandom
+      this.isRepeat = this.config.isRepeat
     },
     nextSong : function() {
       this.currentIndex++
@@ -227,6 +260,8 @@ const app = {
     },
 
     start: function() {
+      //gán cấu hình config và cấu hình gốc
+      this.loadConfig()
       //Định nghĩa các thuộc tính cho Objec 
       this.defineProperties()
       //Lắng nghe xử lý các sự kiện (DOM event)
@@ -235,6 +270,9 @@ const app = {
       this.loadCurrentSong()
       //Render playlist
       this.render()
+      //hiển thị trạng thái ban đầu của button repeat và random
+      randomBtn.classList.toggle('active', this.isRandom)
+      repeatBtn.classList.toggle('active', this.isRepeat)
     }
 }
 app.start()
